@@ -1,4 +1,4 @@
-from flask import Flask, render_template, request
+from flask import Flask, render_template, request, send_from_directory
 from tensorflow.keras.models import load_model
 from tensorflow.keras.preprocessing import image
 import numpy as np
@@ -6,10 +6,14 @@ import os
 
 app = Flask(__name__)
 
-# Load model
+UPLOAD_FOLDER = 'uploads'
+if not os.path.exists(UPLOAD_FOLDER):
+    os.makedirs(UPLOAD_FOLDER)
+
+app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
+
 model = load_model("best_model.keras")
 
-# Daftar class sesuai urutan training
 class_names = [
     "Tomato__Bacterial_spot",
     "Tomato__Early_blight",
@@ -23,6 +27,10 @@ class_names = [
 
 IMG_SIZE = 224
 
+@app.route('/uploads/<filename>')
+def uploaded_file(filename):
+    return send_from_directory(app.config['UPLOAD_FOLDER'], filename)
+
 @app.route("/", methods=["GET", "POST"])
 def index():
     prediction = None
@@ -32,17 +40,17 @@ def index():
     if request.method == "POST":
         file = request.files["image"]
 
-        if file:
-            # Simpan gambar upload
-            img_path = "static/uploads/" + file.filename
-            file.save(img_path)
+        if file and file.filename:
+            filename = file.filename
+            filepath = os.path.join(app.config['UPLOAD_FOLDER'], filename)
+            file.save(filepath)
 
-            # Preprocess
-            img = image.load_img(img_path, target_size=(IMG_SIZE, IMG_SIZE))
+            img_path = f'/uploads/{filename}'
+
+            img = image.load_img(filepath, target_size=(IMG_SIZE, IMG_SIZE))
             img_array = image.img_to_array(img) / 255.0
             img_array = np.expand_dims(img_array, axis=0)
 
-            # Prediksi
             pred = model.predict(img_array)
             idx = np.argmax(pred)
 
@@ -54,3 +62,4 @@ def index():
 
 if __name__ == "__main__":
     app.run(debug=True)
+    
