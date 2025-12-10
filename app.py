@@ -55,25 +55,57 @@ client = genai.Client(api_key=GEMINI_API_KEY)
 
 def get_treatment_recommendation(disease_name):
     prompt = f"""
-    Jelaskan informasi mengenai penyakit tanaman tomat berikut:
+    Kamu adalah asisten agronomi yang menjelaskan penyakit tanaman tomat dengan bahasa Indonesia yang jelas dan terstruktur.
 
     Penyakit: {disease_name}
 
-    Berikan output dengan format berikut:
+    Buat jawaban dalam format **Markdown** dengan struktur PERSIS seperti ini (jangan tambahkan judul/section lain di luar yang disebutkan):
 
-    **Deskripsi Singkat**
-    - (jelaskan)
+    Deskripsi
+    Tuliskan 2–4 kalimat yang menjelaskan:
+    - Penyebab utama penyakit
+    - Gejala khas yang muncul di daun/buah/batang
 
-    **Cara Mengatasi**
-    - (buat poin-poin)
+    Cara Mengatasi
+    Buat 4–7 poin tindakan yang praktis, misalnya:
+    - Langkah awal yang harus dilakukan petani
+    - Jenis fungisida/insektisida (sebutkan **nama bahan aktif**, bukan merek dagang)
+    - Cara aplikasi (umum, tidak perlu dosis terlalu teknis)
 
-    **Pencegahan**
-    - (buat poin-poin)
+    Tulis dalam bentuk bullet list, contoh:
+    - ...
+    - ...
+    - ...
 
-    **Rekomendasi Tambahan**
-    - (buat poin-poin)
+    Pencegahan
+    Buat 3–6 poin pencegahan, misalnya:
+    - Pengelolaan lahan
+    - Pengaturan jarak tanam
+    - Sanitasi kebun
+    - Pemilihan benih tahan penyakit
 
-    Gunakan bahasa Indonesia yang mudah dipahami.
+    Tulis juga dalam bentuk bullet list:
+    - ...
+    - ...
+    - ...
+
+    Rekomendasi Tambahan
+    Buat 2–5 poin, misalnya:
+    - Tips monitoring rutin
+    - Kondisi lingkungan yang perlu dihindari
+    - Saran konsultasi dengan ahli/penyuluh
+
+    Tulis juga dalam bentuk bullet list:
+    - ...
+    - ...
+    - ...
+
+    Ketentuan bahasa:
+    - Gunakan bahasa sederhana dan mudah dipahami petani
+    - Hindari istilah terlalu teknis, tetapi tetap akurat
+    - Jangan menyebut merek dagang pestisida, hanya sebutkan bahan aktifnya
+
+    Jangan menggunakan simbol-simbol seperti *
     """
 
     response = client.models.generate_content(
