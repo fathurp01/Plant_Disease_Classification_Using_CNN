@@ -1,479 +1,856 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Plant Disease Prediction</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.6.1/cropper.min.js"></script>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.6.1/cropper.min.css">
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.6.1/cropper.min.css"
+    />
     <style>
-        .camera-icon {
-            width: 32px;
-            height: 32px;
-            position: relative;
-            display: inline-block;
-        }
+      .camera-icon {
+        width: 32px;
+        height: 32px;
+        position: relative;
+        display: inline-block;
+      }
     </style>
-</head>
-<body class="bg-gray-50 min-h-screen">
-    
+  </head>
+  <body class="bg-gray-50 min-h-screen">
     <div class="container mx-auto px-4 py-12 max-w-6xl">
-        <div class="text-center mb-10">
-            <div class="inline-flex items-center justify-center w-20 h-20 bg-white rounded-2xl shadow-md border-2 mb-6">
-                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 640" class="w-12 h-12 fill-emerald-600">
-                    <path d="M512.1 376.7C457 513.4 325 430.7 325 430.7C284.5 512.5 217.6 565.1 140.4 565.4C124.3 565.4 123.8 541 140.4 541C204.8 540.7 260.9 498.3 297.6 430.9C256.5 446.8 179 458.8 136 348.7C245 303.8 295.1 359.9 314.3 394.2C324.2 369.8 331.3 343.3 335.9 314.5C335.9 314.5 196.2 336.4 186.4 216.4C305.5 168.5 339 293.1 339 293.1C340.6 276.4 342.3 240.5 342.3 239.7C342.3 239.7 236 166 304.2 74.5C428.8 117.5 365.6 236.9 365.6 236.9C366.1 238.5 366.1 260.7 365.6 270.3C365.6 270.3 410.8 181.3 502 212.8C497.8 346.8 360.1 319.2 360.1 319.2C355.7 346.6 348.9 372.6 340.1 396.7C340.1 396.7 423.1 304.9 512.1 376.7z"/>
+      <div class="text-center mb-10">
+        <div
+          class="inline-flex items-center justify-center w-20 h-20 bg-white rounded-2xl shadow-md border-2 mb-6"
+        >
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            viewBox="0 0 640 640"
+            class="w-12 h-12 fill-emerald-600"
+          >
+            <path
+              d="M512.1 376.7C457 513.4 325 430.7 325 430.7C284.5 512.5 217.6 565.1 140.4 565.4C124.3 565.4 123.8 541 140.4 541C204.8 540.7 260.9 498.3 297.6 430.9C256.5 446.8 179 458.8 136 348.7C245 303.8 295.1 359.9 314.3 394.2C324.2 369.8 331.3 343.3 335.9 314.5C335.9 314.5 196.2 336.4 186.4 216.4C305.5 168.5 339 293.1 339 293.1C340.6 276.4 342.3 240.5 342.3 239.7C342.3 239.7 236 166 304.2 74.5C428.8 117.5 365.6 236.9 365.6 236.9C366.1 238.5 366.1 260.7 365.6 270.3C365.6 270.3 410.8 181.3 502 212.8C497.8 346.8 360.1 319.2 360.1 319.2C355.7 346.6 348.9 372.6 340.1 396.7C340.1 396.7 423.1 304.9 512.1 376.7z"
+            />
+          </svg>
+        </div>
+        <h1 class="text-4xl font-bold text-emerald-900 mb-3">
+          Tomato Disease Classification
+        </h1>
+        <p class="text-emerald-700 text-lg">
+          Identify tomato diseases instantly with AI-powered analysis
+        </p>
+      </div>
+
+      <div class="bg-white shadow-lg rounded-2xl p-8 mx-auto w-full max-w-2xl">
+        <form
+          action="/"
+          method="POST"
+          enctype="multipart/form-data"
+          id="uploadForm"
+        >
+          <div class="mb-6">
+            <label class="block text-sm font-semibold text-emerald-900 mb-4">
+              Upload Plant Image
+            </label>
+
+            <div
+              class="relative border-2 border-dashed border-emerald-300 rounded-xl p-10 text-center hover:border-emerald-500 hover:bg-gray-50 transition-all cursor-pointer group"
+              onclick="document.getElementById('fileInput').click()"
+            >
+              <input
+                type="file"
+                name="image"
+                id="fileInput"
+                class="hidden"
+                accept="image/*"
+                onchange="handleFileSelect(this)"
+              />
+
+              <button
+                type="button"
+                onclick="event.stopPropagation(); openCamera();"
+                class="absolute top-4 right-4 bg-emerald-600 text-white p-3 rounded-full font-semibold hover:bg-emerald-700 transition-all shadow-md hover:shadow-lg hover:scale-110 z-10"
+                title="Take Photo"
+              >
+                <svg
+                  class="w-5 h-5"
+                  viewBox="0 0 32 32"
+                  fill="none"
+                  xmlns="http://www.w3.org/2000/svg"
+                >
+                  <rect
+                    x="4"
+                    y="10"
+                    width="24"
+                    height="16"
+                    rx="2"
+                    stroke="currentColor"
+                    stroke-width="2"
+                    fill="none"
+                  />
+                  <circle
+                    cx="16"
+                    cy="18"
+                    r="5"
+                    stroke="currentColor"
+                    stroke-width="2"
+                    fill="none"
+                  />
+                  <circle cx="16" cy="18" r="2.5" fill="currentColor" />
+                  <path
+                    d="M10 10 L12 6 L20 6 L22 10"
+                    stroke="currentColor"
+                    stroke-width="2"
+                    fill="none"
+                  />
+                  <circle cx="24" cy="13" r="1.5" fill="currentColor" />
                 </svg>
+              </button>
+
+              <div class="flex flex-col items-center pointer-events-none">
+                <div
+                  class="w-16 h-16 bg-emerald-100 rounded-full flex items-center justify-center mb-4 group-hover:bg-emerald-200 transition-colors"
+                >
+                  <svg
+                    class="w-8 h-8 text-emerald-600"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                  >
+                    <path
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                      stroke-width="2"
+                      d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"
+                    />
+                  </svg>
+                </div>
+                <p class="text-base text-emerald-900 mb-2">
+                  <span class="font-semibold">Click to upload</span> or drag and
+                  drop
+                </p>
+                <p class="text-sm text-emerald-600">
+                  PNG, JPG, JPEG up to 10MB
+                </p>
+              </div>
             </div>
-            <h1 class="text-4xl font-bold text-emerald-900 mb-3">Tomato Disease Classification</h1>
-            <p class="text-emerald-700 text-lg">Identify tomato diseases instantly with AI-powered analysis</p>
-        </div>
+          </div>
 
-        <div class="bg-white shadow-lg rounded-2xl p-8 mx-auto w-full max-w-2xl">
-            <form action="/" method="POST" enctype="multipart/form-data" id="uploadForm">
-
-                <div class="mb-6">
-                    <label class="block text-sm font-semibold text-emerald-900 mb-4">
-                        Upload Plant Image
-                    </label>
-
-                    <div class="relative border-2 border-dashed border-emerald-300 rounded-xl p-10 text-center hover:border-emerald-500 hover:bg-gray-50 transition-all cursor-pointer group" onclick="document.getElementById('fileInput').click()">
-                        <input type="file" name="image" id="fileInput" class="hidden" accept="image/*" onchange="handleFileSelect(this)">
-
-                        <button type="button" onclick="event.stopPropagation(); openCamera();" class="absolute top-4 right-4 bg-emerald-600 text-white p-3 rounded-full font-semibold hover:bg-emerald-700 transition-all shadow-md hover:shadow-lg hover:scale-110 z-10" title="Take Photo">
-                            <svg class="w-5 h-5" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                <rect x="4" y="10" width="24" height="16" rx="2" stroke="currentColor" stroke-width="2" fill="none"/>
-                                <circle cx="16" cy="18" r="5" stroke="currentColor" stroke-width="2" fill="none"/>
-                                <circle cx="16" cy="18" r="2.5" fill="currentColor"/>
-                                <path d="M10 10 L12 6 L20 6 L22 10" stroke="currentColor" stroke-width="2" fill="none"/>
-                                <circle cx="24" cy="13" r="1.5" fill="currentColor"/>
-                            </svg>
-                        </button>
-                        
-                        <div class="flex flex-col items-center pointer-events-none">
-                            <div class="w-16 h-16 bg-emerald-100 rounded-full flex items-center justify-center mb-4 group-hover:bg-emerald-200 transition-colors">
-                                <svg class="w-8 h-8 text-emerald-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"/>
-                                </svg>
-                            </div>
-                            <p class="text-base text-emerald-900 mb-2">
-                                <span class="font-semibold">Click to upload</span> or drag and drop
-                            </p>
-                            <p class="text-sm text-emerald-600">PNG, JPG, JPEG up to 10MB</p>
-                        </div>
-                    </div>
-                </div>
-
-                <div id="imagePreviewContainer" class="hidden mb-6">
-                    <div class="border-2 border-emerald-300 rounded-xl p-4">
-                        <div class="flex justify-between items-center mb-4">
-                            <h3 class="text-lg font-semibold text-emerald-900">Image Preview</h3>
-                            <button type="button" onclick="clearImage()" class="text-red-600 hover:text-red-700 font-semibold flex items-center gap-1">
-                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
-                                </svg>
-                                Remove
-                            </button>
-                        </div>
-                        
-                        <div class="mb-4">
-                            <img id="imagePreview" src="" alt="Preview" class="max-w-full h-auto rounded-lg mx-auto" style="max-height: 400px;">
-                        </div>
-
-                        <div class="bg-gray-50 rounded-lg p-4">
-                            <h4 class="text-sm font-semibold text-emerald-900 mb-3">Edit Image</h4>
-                            <div class="grid grid-cols-2 sm:grid-cols-4 gap-2">
-                                <button type="button" onclick="rotateLeft()" class="bg-white border-2 border-emerald-300 text-emerald-700 py-2 px-3 rounded-lg hover:bg-emerald-50 transition-all flex items-center justify-center gap-1 text-sm">
-                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 10h10a8 8 0 018 8v2M3 10l6 6m-6-6l6-6"/>
-                                    </svg>
-                                    Rotate Left
-                                </button>
-                                <button type="button" onclick="rotateRight()" class="bg-white border-2 border-emerald-300 text-emerald-700 py-2 px-3 rounded-lg hover:bg-emerald-50 transition-all flex items-center justify-center gap-1 text-sm">
-                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 10H11a8 8 0 00-8 8v2m18-10l-6 6m6-6l-6-6"/>
-                                    </svg>
-                                    Rotate Right
-                                </button>
-                                <button type="button" onclick="flipHorizontal()" class="bg-white border-2 border-emerald-300 text-emerald-700 py-2 px-3 rounded-lg hover:bg-emerald-50 transition-all flex items-center justify-center gap-1 text-sm">
-                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7h12m0 0l-4-4m4 4l-4 4m0 6H4m0 0l4 4m-4-4l4-4"/>
-                                    </svg>
-                                    Flip H
-                                </button>
-                                <button type="button" onclick="flipVertical()" class="bg-white border-2 border-emerald-300 text-emerald-700 py-2 px-3 rounded-lg hover:bg-emerald-50 transition-all flex items-center justify-center gap-1 text-sm">
-                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16V4m0 0L3 8m4-4l4 4m6 4v12m0 0l4-4m-4 4l-4-4"/>
-                                    </svg>
-                                    Flip V
-                                </button>
-                            </div>
-                            <div class="mt-3">
-                                <button type="button" onclick="enableCrop()" id="cropBtn" class="w-full bg-emerald-600 text-white py-2 px-4 rounded-lg hover:bg-emerald-700 transition-all flex items-center justify-center gap-2">
-                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 10l-2 1m0 0l-2-1m2 1v2.5M20 7l-2 1m2-1l-2-1m2 1v2.5M14 4l-2-1-2 1M4 7l2-1M4 7l2 1M4 7v2.5M12 21l-2-1m2 1l2-1m-2 1v-2.5M6 18l-2-1v-2.5M18 18l2-1v-2.5"/>
-                                    </svg>
-                                    Enable Crop
-                                </button>
-                                <button type="button" onclick="applyCrop()" id="applyCropBtn" class="hidden w-full bg-green-600 text-white py-2 px-4 rounded-lg hover:bg-green-700 transition-all flex items-center justify-center gap-2">
-                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
-                                    </svg>
-                                    Apply Crop
-                                </button>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                <button type="submit" id="submitBtn" class="w-full bg-emerald-600 text-white py-4 px-6 rounded-xl font-semibold hover:bg-emerald-700 transition-all focus:outline-none focus:ring-4 focus:ring-emerald-300 shadow-md">
-                    Analyze Image
+          <div id="imagePreviewContainer" class="hidden mb-6">
+            <div class="border-2 border-emerald-300 rounded-xl p-4">
+              <div class="flex justify-between items-center mb-4">
+                <h3 class="text-lg font-semibold text-emerald-900">
+                  Image Preview
+                </h3>
+                <button
+                  type="button"
+                  onclick="clearImage()"
+                  class="text-red-600 hover:text-red-700 font-semibold flex items-center gap-1"
+                >
+                  <svg
+                    class="w-4 h-4"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                  >
+                    <path
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                      stroke-width="2"
+                      d="M6 18L18 6M6 6l12 12"
+                    />
+                  </svg>
+                  Remove
                 </button>
-            </form>
+              </div>
+
+              <div class="mb-4">
+                <img
+                  id="imagePreview"
+                  src=""
+                  alt="Preview"
+                  class="max-w-full h-auto rounded-lg mx-auto"
+                  style="max-height: 400px"
+                />
+              </div>
+
+              <div class="bg-gray-50 rounded-lg p-4">
+                <h4 class="text-sm font-semibold text-emerald-900 mb-3">
+                  Edit Image
+                </h4>
+                <div class="grid grid-cols-2 sm:grid-cols-4 gap-2">
+                  <button
+                    type="button"
+                    onclick="rotateLeft()"
+                    class="bg-white border-2 border-emerald-300 text-emerald-700 py-2 px-3 rounded-lg hover:bg-emerald-50 transition-all flex items-center justify-center gap-1 text-sm"
+                  >
+                    <svg
+                      class="w-4 h-4"
+                      fill="none"
+                      stroke="currentColor"
+                      viewBox="0 0 24 24"
+                    >
+                      <path
+                        stroke-linecap="round"
+                        stroke-linejoin="round"
+                        stroke-width="2"
+                        d="M3 10h10a8 8 0 018 8v2M3 10l6 6m-6-6l6-6"
+                      />
+                    </svg>
+                    Rotate Left
+                  </button>
+                  <button
+                    type="button"
+                    onclick="rotateRight()"
+                    class="bg-white border-2 border-emerald-300 text-emerald-700 py-2 px-3 rounded-lg hover:bg-emerald-50 transition-all flex items-center justify-center gap-1 text-sm"
+                  >
+                    <svg
+                      class="w-4 h-4"
+                      fill="none"
+                      stroke="currentColor"
+                      viewBox="0 0 24 24"
+                    >
+                      <path
+                        stroke-linecap="round"
+                        stroke-linejoin="round"
+                        stroke-width="2"
+                        d="M21 10H11a8 8 0 00-8 8v2m18-10l-6 6m6-6l-6-6"
+                      />
+                    </svg>
+                    Rotate Right
+                  </button>
+                  <button
+                    type="button"
+                    onclick="flipHorizontal()"
+                    class="bg-white border-2 border-emerald-300 text-emerald-700 py-2 px-3 rounded-lg hover:bg-emerald-50 transition-all flex items-center justify-center gap-1 text-sm"
+                  >
+                    <svg
+                      class="w-4 h-4"
+                      fill="none"
+                      stroke="currentColor"
+                      viewBox="0 0 24 24"
+                    >
+                      <path
+                        stroke-linecap="round"
+                        stroke-linejoin="round"
+                        stroke-width="2"
+                        d="M8 7h12m0 0l-4-4m4 4l-4 4m0 6H4m0 0l4 4m-4-4l4-4"
+                      />
+                    </svg>
+                    Flip H
+                  </button>
+                  <button
+                    type="button"
+                    onclick="flipVertical()"
+                    class="bg-white border-2 border-emerald-300 text-emerald-700 py-2 px-3 rounded-lg hover:bg-emerald-50 transition-all flex items-center justify-center gap-1 text-sm"
+                  >
+                    <svg
+                      class="w-4 h-4"
+                      fill="none"
+                      stroke="currentColor"
+                      viewBox="0 0 24 24"
+                    >
+                      <path
+                        stroke-linecap="round"
+                        stroke-linejoin="round"
+                        stroke-width="2"
+                        d="M7 16V4m0 0L3 8m4-4l4 4m6 4v12m0 0l4-4m-4 4l-4-4"
+                      />
+                    </svg>
+                    Flip V
+                  </button>
+                </div>
+                <div class="mt-3">
+                  <button
+                    type="button"
+                    onclick="enableCrop()"
+                    id="cropBtn"
+                    class="w-full bg-emerald-600 text-white py-2 px-4 rounded-lg hover:bg-emerald-700 transition-all flex items-center justify-center gap-2"
+                  >
+                    <svg
+                      class="w-4 h-4"
+                      fill="none"
+                      stroke="currentColor"
+                      viewBox="0 0 24 24"
+                    >
+                      <path
+                        stroke-linecap="round"
+                        stroke-linejoin="round"
+                        stroke-width="2"
+                        d="M14 10l-2 1m0 0l-2-1m2 1v2.5M20 7l-2 1m2-1l-2-1m2 1v2.5M14 4l-2-1-2 1M4 7l2-1M4 7l2 1M4 7v2.5M12 21l-2-1m2 1l2-1m-2 1v-2.5M6 18l-2-1v-2.5M18 18l2-1v-2.5"
+                      />
+                    </svg>
+                    Enable Crop
+                  </button>
+                  <button
+                    type="button"
+                    onclick="applyCrop()"
+                    id="applyCropBtn"
+                    class="hidden w-full bg-green-600 text-white py-2 px-4 rounded-lg hover:bg-green-700 transition-all flex items-center justify-center gap-2"
+                  >
+                    <svg
+                      class="w-4 h-4"
+                      fill="none"
+                      stroke="currentColor"
+                      viewBox="0 0 24 24"
+                    >
+                      <path
+                        stroke-linecap="round"
+                        stroke-linejoin="round"
+                        stroke-width="2"
+                        d="M5 13l4 4L19 7"
+                      />
+                    </svg>
+                    Apply Crop
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <button
+            type="submit"
+            id="submitBtn"
+            class="w-full bg-emerald-600 text-white py-4 px-6 rounded-xl font-semibold hover:bg-emerald-700 transition-all focus:outline-none focus:ring-4 focus:ring-emerald-300 shadow-md"
+          >
+            Analyze Image
+          </button>
+        </form>
+      </div>
+
+      <div
+        id="cameraModal"
+        class="hidden fixed inset-0 bg-black bg-opacity-75 flex items-center justify-center z-50 p-4"
+      >
+        <div class="bg-white rounded-2xl shadow-2xl p-6 max-w-2xl w-full">
+          <div class="flex justify-between items-center mb-4">
+            <h3 class="text-xl font-bold text-emerald-900">Take Photo</h3>
+            <button
+              type="button"
+              onclick="closeCamera()"
+              class="text-gray-600 hover:text-gray-800"
+            >
+              <svg
+                class="w-6 h-6"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  stroke-width="2"
+                  d="M6 18L18 6M6 6l12 12"
+                />
+              </svg>
+            </button>
+          </div>
+          <div class="relative bg-black rounded-xl overflow-hidden mb-4">
+            <video
+              id="cameraVideo"
+              autoplay
+              playsinline
+              class="w-full h-auto"
+            ></video>
+            <canvas id="cameraCanvas" class="hidden"></canvas>
+          </div>
+          <div class="flex gap-3">
+            <button
+              type="button"
+              onclick="capturePhoto()"
+              class="flex-1 bg-emerald-600 text-white py-3 px-6 rounded-xl font-semibold hover:bg-emerald-700 transition-all flex items-center justify-center gap-2"
+            >
+              <svg
+                class="w-5 h-5"
+                viewBox="0 0 32 32"
+                fill="none"
+                xmlns="http://www.w3.org/2000/svg"
+              >
+                <rect
+                  x="4"
+                  y="10"
+                  width="24"
+                  height="16"
+                  rx="2"
+                  stroke="currentColor"
+                  stroke-width="2"
+                  fill="none"
+                />
+                <circle
+                  cx="16"
+                  cy="18"
+                  r="5"
+                  stroke="currentColor"
+                  stroke-width="2"
+                  fill="none"
+                />
+                <circle cx="16" cy="18" r="2.5" fill="currentColor" />
+                <path
+                  d="M10 10 L12 6 L20 6 L22 10"
+                  stroke="currentColor"
+                  stroke-width="2"
+                  fill="none"
+                />
+                <circle cx="24" cy="13" r="1.5" fill="currentColor" />
+              </svg>
+              Capture
+            </button>
+            <button
+              type="button"
+              onclick="closeCamera()"
+              class="flex-1 bg-gray-600 text-white py-3 px-6 rounded-xl font-semibold hover:bg-gray-700 transition-all"
+            >
+              Cancel
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <div
+        id="loadingDialog"
+        class="hidden fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4"
+      >
+        <div
+          class="bg-white rounded-2xl shadow-2xl p-8 max-w-sm w-full border-2 border-emerald-200"
+        >
+          <div class="text-center">
+            <div
+              class="inline-flex items-center justify-center w-16 h-16 bg-emerald-100 rounded-full mb-4"
+            >
+              <svg
+                class="animate-spin h-8 w-8 text-emerald-600"
+                xmlns="http://www.w3.org/2000/svg"
+                fill="none"
+                viewBox="0 0 24 24"
+              >
+                <circle
+                  class="opacity-25"
+                  cx="12"
+                  cy="12"
+                  r="10"
+                  stroke="currentColor"
+                  stroke-width="4"
+                ></circle>
+                <path
+                  class="opacity-75"
+                  fill="currentColor"
+                  d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+                ></path>
+              </svg>
+            </div>
+            <h3 class="text-xl font-bold text-emerald-900 mb-2">
+              Analyzing Image
+            </h3>
+            <p class="text-emerald-700">
+              Please wait while we detect the disease...
+            </p>
+          </div>
+        </div>
+      </div>
+
+      {% if not_tomato_leaf_reason %}
+      <div class="mt-8">
+        <div
+          class="bg-yellow-50 border-2 border-yellow-300 text-yellow-800 rounded-2xl p-6 shadow-sm"
+        >
+          <div class="flex items-start gap-3">
+            <div
+              class="flex-shrink-0 w-10 h-10 bg-yellow-200 rounded-xl flex items-center justify-center"
+            >
+              <svg
+                class="w-6 h-6 text-yellow-700"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  stroke-width="2"
+                  d="M13 16h-1v-4h-1m1-4h.01M12 2a10 10 0 100 20 10 10 0 000-20z"
+                />
+              </svg>
+            </div>
+            <div>
+              <h3 class="text-lg font-semibold">Validasi Gambar</h3>
+              <p class="mt-1">{{ not_tomato_leaf_reason }}</p>
+            </div>
+          </div>
+        </div>
+      </div>
+      {% elif prediction %}
+      <div class="mt-16 grid md:grid-cols-2 gap-6">
+        <div class="bg-white rounded-2xl shadow-lg border-2 overflow-hidden">
+          <div class="bg-white p-8">
+            <img
+              src="{{ img_path }}"
+              alt="Uploaded plant"
+              class="max-w-full h-auto rounded-xl mx-auto shadow-md border-2"
+              style="max-height: 400px"
+            />
+          </div>
+
+          <div class="p-8">
+            <div
+              class="flex items-start space-x-4 mb-6 pb-6 border-b-2 border-emerald-100"
+            >
+              <div class="flex-shrink-0">
+                <div
+                  class="w-12 h-12 bg-emerald-600 rounded-xl flex items-center justify-center shadow-md"
+                >
+                  <svg
+                    class="w-6 h-6 text-white"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                  >
+                    <path
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                      stroke-width="2"
+                      d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"
+                    />
+                  </svg>
+                </div>
+              </div>
+              <div class="flex-1">
+                <h3
+                  class="text-sm font-semibold text-emerald-600 uppercase tracking-wide mb-2"
+                >
+                  Detection Result
+                </h3>
+                <p class="text-3xl font-bold text-emerald-900">
+                  {{ prediction.replace('_', ' ').replace('Tomato ', '') }}
+                </p>
+              </div>
+            </div>
+
+            <div class="mb-2">
+              <div class="flex justify-between items-center mb-3">
+                <span class="text-sm font-semibold text-emerald-900"
+                  >Confidence Level</span
+                >
+                <span class="text-lg font-bold text-emerald-600"
+                  >{{ "%.1f" | format(confidence * 100) }}%</span
+                >
+              </div>
+              <div
+                class="w-full bg-emerald-100 rounded-full h-3 overflow-hidden border"
+              >
+                <div
+                  id="confidenceBar"
+                  class="bg-emerald-600 h-3 rounded-full transition-all duration-500"
+                  data-width="{{ confidence * 100 }}"
+                  style="width: 0%"
+                ></div>
+              </div>
+            </div>
+          </div>
         </div>
 
-        <div id="cameraModal" class="hidden fixed inset-0 bg-black bg-opacity-75 flex items-center justify-center z-50 p-4">
-            <div class="bg-white rounded-2xl shadow-2xl p-6 max-w-2xl w-full">
-                <div class="flex justify-between items-center mb-4">
-                    <h3 class="text-xl font-bold text-emerald-900">Take Photo</h3>
-                    <button type="button" onclick="closeCamera()" class="text-gray-600 hover:text-gray-800">
-                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
-                        </svg>
-                    </button>
-                </div>
-                <div class="relative bg-black rounded-xl overflow-hidden mb-4">
-                    <video id="cameraVideo" autoplay playsinline class="w-full h-auto"></video>
-                    <canvas id="cameraCanvas" class="hidden"></canvas>
-                </div>
-                <div class="flex gap-3">
-                    <button type="button" onclick="capturePhoto()" class="flex-1 bg-emerald-600 text-white py-3 px-6 rounded-xl font-semibold hover:bg-emerald-700 transition-all flex items-center justify-center gap-2">
-                        <svg class="w-5 h-5" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
-                            <rect x="4" y="10" width="24" height="16" rx="2" stroke="currentColor" stroke-width="2" fill="none"/>
-                            <circle cx="16" cy="18" r="5" stroke="currentColor" stroke-width="2" fill="none"/>
-                            <circle cx="16" cy="18" r="2.5" fill="currentColor"/>
-                            <path d="M10 10 L12 6 L20 6 L22 10" stroke="currentColor" stroke-width="2" fill="none"/>
-                            <circle cx="24" cy="13" r="1.5" fill="currentColor"/>
-                        </svg>
-                        Capture
-                    </button>
-                    <button type="button" onclick="closeCamera()" class="flex-1 bg-gray-600 text-white py-3 px-6 rounded-xl font-semibold hover:bg-gray-700 transition-all">
-                        Cancel
-                    </button>
-                </div>
+        {% if recommendation %}
+        <div class="bg-white rounded-2xl shadow-lg border-2 p-8">
+          <div
+            class="flex items-start space-x-4 mb-6 pb-6 border-b-2 border-emerald-100"
+          >
+            <div class="flex-shrink-0">
+              <div
+                class="w-12 h-12 bg-emerald-600 rounded-xl flex items-center justify-center shadow-md"
+              >
+                <svg
+                  class="w-6 h-6 text-white"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    stroke-width="2"
+                    d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"
+                  />
+                </svg>
+              </div>
             </div>
-        </div>
-
-        <div id="loadingDialog" class="hidden fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-            <div class="bg-white rounded-2xl shadow-2xl p-8 max-w-sm w-full border-2 border-emerald-200">
-                <div class="text-center">
-                    <div class="inline-flex items-center justify-center w-16 h-16 bg-emerald-100 rounded-full mb-4">
-                        <svg class="animate-spin h-8 w-8 text-emerald-600" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                            <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
-                            <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                        </svg>
-                    </div>
-                    <h3 class="text-xl font-bold text-emerald-900 mb-2">Analyzing Image</h3>
-                    <p class="text-emerald-700">Please wait while we detect the disease...</p>
-                </div>
+            <div class="flex-1">
+              <h3
+                class="text-sm font-semibold text-emerald-600 uppercase tracking-wide mb-2"
+              >
+                Treatment
+              </h3>
+              <p class="text-2xl font-bold text-emerald-900">Recommendation</p>
             </div>
-        </div>
+          </div>
 
-        {% if prediction %}
-        <div class="mt-16 grid md:grid-cols-2 gap-6">
-            <div class="bg-white rounded-2xl shadow-lg border-2 overflow-hidden">
-                <div class="bg-white p-8">
-                    <img src="{{ img_path }}" alt="Uploaded plant" class="max-w-full h-auto rounded-xl mx-auto shadow-md border-2" style="max-height: 400px;">
-                </div>
-
-                <div class="p-8">
-                    <div class="flex items-start space-x-4 mb-6 pb-6 border-b-2 border-emerald-100">
-                        <div class="flex-shrink-0">
-                            <div class="w-12 h-12 bg-emerald-600 rounded-xl flex items-center justify-center shadow-md">
-                                <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
-                                </svg>
-                            </div>
-                        </div>
-                        <div class="flex-1">
-                            <h3 class="text-sm font-semibold text-emerald-600 uppercase tracking-wide mb-2">Detection Result</h3>
-                            <p class="text-3xl font-bold text-emerald-900">{{ prediction.replace('_', ' ').replace('Tomato  ', '') }}</p>
-                        </div>
-                    </div>
-
-                    <div class="mb-2">
-                        <div class="flex justify-between items-center mb-3">
-                            <span class="text-sm font-semibold text-emerald-900">Confidence Level</span>
-                            <span class="text-lg font-bold text-emerald-600">{{ "%.1f" | format(confidence * 100) }}%</span>
-                        </div>
-                        <div class="w-full bg-emerald-100 rounded-full h-3 overflow-hidden border">
-                            <div class="bg-emerald-600 h-3 rounded-full transition-all duration-500" style="width: {{ confidence * 100 }}%"></div>
-                        </div>
-                    </div>
-                </div>
+          <div class="relative">
+            <div
+              class="prose prose-gray max-w-none bg-white-50 p-6 rounded-xl border-l-4 border-emerald-500 shadow-inner leading-loose overflow-y-auto"
+              style="max-height: 480px"
+            >
+              <div
+                class="text-emerald-900 text-[15px] leading-nromal tracking-wide whitespace-pre-line mt-0"
+              >
+                {{ recommendation | safe }}
+              </div>
             </div>
-
-            {% if recommendation %}
-            <div class="bg-white rounded-2xl shadow-lg border-2 p-8">
-
-                <div class="flex items-start space-x-4 mb-6 pb-6 border-b-2 border-emerald-100">
-                    <div class="flex-shrink-0">
-                        <div class="w-12 h-12 bg-emerald-600 rounded-xl flex items-center justify-center shadow-md">
-                            <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" 
-                                d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/>
-                            </svg>
-                        </div>
-                    </div>
-                    <div class="flex-1">
-                        <h3 class="text-sm font-semibold text-emerald-600 uppercase tracking-wide mb-2">Treatment</h3>
-                        <p class="text-2xl font-bold text-emerald-900">Recommendation</p>
-                    </div>
-                </div>
-
-                <div class="relative">
-                    <div class="prose prose-gray max-w-none bg-white-50 p-6 rounded-xl border-l-4 border-emerald-500 shadow-inner leading-loose overflow-y-auto" style="max-height: 480px;">
-                        <div class="text-emerald-900 text-[15px] leading-nromal tracking-wide whitespace-pre-line mt-0">
-                            {{ recommendation | safe }}
-                        </div>
-
-                    </div>
-                </div>
-            </div>
-            {% endif %}
+          </div>
         </div>
         {% endif %}
-
+      </div>
+      {% endif %}
     </div>
 
     <script>
-        let cropper = null;
-        let cameraStream = null;
-        let currentImageFile = null;
-        let scaleX = 1;
-        let scaleY = 1;
+      let cropper = null;
+      let cameraStream = null;
+      let currentImageFile = null;
+      let scaleX = 1;
+      let scaleY = 1;
 
-        function handleFileSelect(input) {
-            const file = input.files[0];
-            if (file) {
-                currentImageFile = file;
-                displayImagePreview(file);
-            }
+      function handleFileSelect(input) {
+        const file = input.files[0];
+        if (file) {
+          currentImageFile = file;
+          displayImagePreview(file);
+        }
+      }
+
+      function displayImagePreview(file) {
+        const reader = new FileReader();
+        reader.onload = function (e) {
+          const img = document.getElementById("imagePreview");
+          img.src = e.target.result;
+          document
+            .getElementById("imagePreviewContainer")
+            .classList.remove("hidden");
+
+          if (cropper) {
+            cropper.destroy();
+            cropper = null;
+          }
+
+          document.getElementById("cropBtn").classList.remove("hidden");
+          document.getElementById("applyCropBtn").classList.add("hidden");
+        };
+        reader.readAsDataURL(file);
+      }
+
+      function clearImage() {
+        document.getElementById("fileInput").value = "";
+        document
+          .getElementById("imagePreviewContainer")
+          .classList.add("hidden");
+        currentImageFile = null;
+
+        if (cropper) {
+          cropper.destroy();
+          cropper = null;
         }
 
-        function displayImagePreview(file) {
-            const reader = new FileReader();
-            reader.onload = function(e) {
-                const img = document.getElementById('imagePreview');
-                img.src = e.target.result;
-                document.getElementById('imagePreviewContainer').classList.remove('hidden');
-                
-                if (cropper) {
-                    cropper.destroy();
-                    cropper = null;
-                }
-                
-                document.getElementById('cropBtn').classList.remove('hidden');
-                document.getElementById('applyCropBtn').classList.add('hidden');
-            };
-            reader.readAsDataURL(file);
-        }
+        scaleX = 1;
+        scaleY = 1;
+      }
 
-        function clearImage() {
-            document.getElementById('fileInput').value = '';
-            document.getElementById('imagePreviewContainer').classList.add('hidden');
-            currentImageFile = null;
-            
-            if (cropper) {
-                cropper.destroy();
-                cropper = null;
-            }
-            
-            scaleX = 1;
-            scaleY = 1;
-        }
+      function rotateLeft() {
+        if (cropper) {
+          cropper.rotate(-90);
+        } else {
+          const img = document.getElementById("imagePreview");
+          const canvas = document.createElement("canvas");
+          const ctx = canvas.getContext("2d");
 
-        function rotateLeft() {
-            if (cropper) {
-                cropper.rotate(-90);
-            } else {
-                const img = document.getElementById('imagePreview');
-                const canvas = document.createElement('canvas');
-                const ctx = canvas.getContext('2d');
-                
-                canvas.width = img.naturalHeight;
-                canvas.height = img.naturalWidth;
-                
-                ctx.translate(canvas.width / 2, canvas.height / 2);
-                ctx.rotate(-90 * Math.PI / 180);
-                ctx.drawImage(img, -img.naturalWidth / 2, -img.naturalHeight / 2);
-                
-                img.src = canvas.toDataURL();
-                updateFileFromCanvas(canvas);
-            }
-        }
+          canvas.width = img.naturalHeight;
+          canvas.height = img.naturalWidth;
 
-        function rotateRight() {
-            if (cropper) {
-                cropper.rotate(90);
-            } else {
-                const img = document.getElementById('imagePreview');
-                const canvas = document.createElement('canvas');
-                const ctx = canvas.getContext('2d');
-                
-                canvas.width = img.naturalHeight;
-                canvas.height = img.naturalWidth;
-                
-                ctx.translate(canvas.width / 2, canvas.height / 2);
-                ctx.rotate(90 * Math.PI / 180);
-                ctx.drawImage(img, -img.naturalWidth / 2, -img.naturalHeight / 2);
-                
-                img.src = canvas.toDataURL();
-                updateFileFromCanvas(canvas);
-            }
-        }
+          ctx.translate(canvas.width / 2, canvas.height / 2);
+          ctx.rotate((-90 * Math.PI) / 180);
+          ctx.drawImage(img, -img.naturalWidth / 2, -img.naturalHeight / 2);
 
-        function flipHorizontal() {
-            if (cropper) {
-                scaleX = -scaleX;
-                cropper.scaleX(scaleX);
-            } else {
-                const img = document.getElementById('imagePreview');
-                const canvas = document.createElement('canvas');
-                const ctx = canvas.getContext('2d');
-                
-                canvas.width = img.naturalWidth;
-                canvas.height = img.naturalHeight;
-                
-                ctx.translate(canvas.width, 0);
-                ctx.scale(-1, 1);
-                ctx.drawImage(img, 0, 0);
-                
-                img.src = canvas.toDataURL();
-                updateFileFromCanvas(canvas);
-            }
+          img.src = canvas.toDataURL();
+          updateFileFromCanvas(canvas);
         }
+      }
 
-        function flipVertical() {
-            if (cropper) {
-                scaleY = -scaleY;
-                cropper.scaleY(scaleY);
-            } else {
-                const img = document.getElementById('imagePreview');
-                const canvas = document.createElement('canvas');
-                const ctx = canvas.getContext('2d');
-                
-                canvas.width = img.naturalWidth;
-                canvas.height = img.naturalHeight;
-                
-                ctx.translate(0, canvas.height);
-                ctx.scale(1, -1);
-                ctx.drawImage(img, 0, 0);
-                
-                img.src = canvas.toDataURL();
-                updateFileFromCanvas(canvas);
-            }
+      function rotateRight() {
+        if (cropper) {
+          cropper.rotate(90);
+        } else {
+          const img = document.getElementById("imagePreview");
+          const canvas = document.createElement("canvas");
+          const ctx = canvas.getContext("2d");
+
+          canvas.width = img.naturalHeight;
+          canvas.height = img.naturalWidth;
+
+          ctx.translate(canvas.width / 2, canvas.height / 2);
+          ctx.rotate((90 * Math.PI) / 180);
+          ctx.drawImage(img, -img.naturalWidth / 2, -img.naturalHeight / 2);
+
+          img.src = canvas.toDataURL();
+          updateFileFromCanvas(canvas);
         }
+      }
 
-        function enableCrop() {
-            const img = document.getElementById('imagePreview');
-            cropper = new Cropper(img, {
-                aspectRatio: NaN,
-                viewMode: 1,
-                autoCropArea: 0.8,
-            });
-            
-            document.getElementById('cropBtn').classList.add('hidden');
-            document.getElementById('applyCropBtn').classList.remove('hidden');
+      function flipHorizontal() {
+        if (cropper) {
+          scaleX = -scaleX;
+          cropper.scaleX(scaleX);
+        } else {
+          const img = document.getElementById("imagePreview");
+          const canvas = document.createElement("canvas");
+          const ctx = canvas.getContext("2d");
+
+          canvas.width = img.naturalWidth;
+          canvas.height = img.naturalHeight;
+
+          ctx.translate(canvas.width, 0);
+          ctx.scale(-1, 1);
+          ctx.drawImage(img, 0, 0);
+
+          img.src = canvas.toDataURL();
+          updateFileFromCanvas(canvas);
         }
+      }
 
-        function applyCrop() {
-            if (cropper) {
-                const canvas = cropper.getCroppedCanvas();
-                const img = document.getElementById('imagePreview');
-                img.src = canvas.toDataURL();
-                
-                cropper.destroy();
-                cropper = null;
-                
-                document.getElementById('cropBtn').classList.remove('hidden');
-                document.getElementById('applyCropBtn').classList.add('hidden');
-                
-                updateFileFromCanvas(canvas);
-            }
+      function flipVertical() {
+        if (cropper) {
+          scaleY = -scaleY;
+          cropper.scaleY(scaleY);
+        } else {
+          const img = document.getElementById("imagePreview");
+          const canvas = document.createElement("canvas");
+          const ctx = canvas.getContext("2d");
+
+          canvas.width = img.naturalWidth;
+          canvas.height = img.naturalHeight;
+
+          ctx.translate(0, canvas.height);
+          ctx.scale(1, -1);
+          ctx.drawImage(img, 0, 0);
+
+          img.src = canvas.toDataURL();
+          updateFileFromCanvas(canvas);
         }
+      }
 
-        function updateFileFromCanvas(canvas) {
-            canvas.toBlob(function(blob) {
-                const fileName = currentImageFile ? currentImageFile.name : 'edited-image.png';
-                currentImageFile = new File([blob], fileName, { type: 'image/png' });
-                
-                const dataTransfer = new DataTransfer();
-                dataTransfer.items.add(currentImageFile);
-                document.getElementById('fileInput').files = dataTransfer.files;
-            });
-        }
-
-        function openCamera() {
-            const modal = document.getElementById('cameraModal');
-            const video = document.getElementById('cameraVideo');
-            
-            modal.classList.remove('hidden');
-            
-            navigator.mediaDevices.getUserMedia({ video: { facingMode: 'environment' } })
-                .then(function(stream) {
-                    cameraStream = stream;
-                    video.srcObject = stream;
-                })
-                .catch(function(err) {
-                    alert('Cannot access camera: ' + err.message);
-                    closeCamera();
-                });
-        }
-
-        function closeCamera() {
-            const modal = document.getElementById('cameraModal');
-            const video = document.getElementById('cameraVideo');
-            
-            if (cameraStream) {
-                cameraStream.getTracks().forEach(track => track.stop());
-                cameraStream = null;
-            }
-            
-            video.srcObject = null;
-            modal.classList.add('hidden');
-        }
-
-        function capturePhoto() {
-            const video = document.getElementById('cameraVideo');
-            const canvas = document.getElementById('cameraCanvas');
-            
-            canvas.width = video.videoWidth;
-            canvas.height = video.videoHeight;
-            
-            const ctx = canvas.getContext('2d');
-            ctx.drawImage(video, 0, 0);
-            
-            canvas.toBlob(function(blob) {
-                const file = new File([blob], 'camera-photo.png', { type: 'image/png' });
-                currentImageFile = file;
-                
-                const dataTransfer = new DataTransfer();
-                dataTransfer.items.add(file);
-                document.getElementById('fileInput').files = dataTransfer.files;
-                
-                displayImagePreview(file);
-                closeCamera();
-            });
-        }
-
-        document.getElementById('uploadForm').addEventListener('submit', function(e) {
-            const fileInput = document.getElementById('fileInput');
-            if (fileInput.files.length > 0) {
-                document.getElementById('loadingDialog').classList.remove('hidden');
-            }
+      function enableCrop() {
+        const img = document.getElementById("imagePreview");
+        cropper = new Cropper(img, {
+          aspectRatio: NaN,
+          viewMode: 1,
+          autoCropArea: 0.8,
         });
-    </script>
 
-</body>
+        document.getElementById("cropBtn").classList.add("hidden");
+        document.getElementById("applyCropBtn").classList.remove("hidden");
+      }
+
+      function applyCrop() {
+        if (cropper) {
+          const canvas = cropper.getCroppedCanvas();
+          const img = document.getElementById("imagePreview");
+          img.src = canvas.toDataURL();
+
+          cropper.destroy();
+          cropper = null;
+
+          document.getElementById("cropBtn").classList.remove("hidden");
+          document.getElementById("applyCropBtn").classList.add("hidden");
+
+          updateFileFromCanvas(canvas);
+        }
+      }
+
+      function updateFileFromCanvas(canvas) {
+        canvas.toBlob(function (blob) {
+          const fileName = currentImageFile
+            ? currentImageFile.name
+            : "edited-image.png";
+          currentImageFile = new File([blob], fileName, { type: "image/png" });
+
+          const dataTransfer = new DataTransfer();
+          dataTransfer.items.add(currentImageFile);
+          document.getElementById("fileInput").files = dataTransfer.files;
+        });
+      }
+
+      function openCamera() {
+        const modal = document.getElementById("cameraModal");
+        const video = document.getElementById("cameraVideo");
+
+        modal.classList.remove("hidden");
+
+        navigator.mediaDevices
+          .getUserMedia({ video: { facingMode: "environment" } })
+          .then(function (stream) {
+            cameraStream = stream;
+            video.srcObject = stream;
+          })
+          .catch(function (err) {
+            alert("Cannot access camera: " + err.message);
+            closeCamera();
+          });
+      }
+
+      function closeCamera() {
+        const modal = document.getElementById("cameraModal");
+        const video = document.getElementById("cameraVideo");
+
+        if (cameraStream) {
+          cameraStream.getTracks().forEach((track) => track.stop());
+          cameraStream = null;
+        }
+
+        video.srcObject = null;
+        modal.classList.add("hidden");
+      }
+
+      function capturePhoto() {
+        const video = document.getElementById("cameraVideo");
+        const canvas = document.getElementById("cameraCanvas");
+
+        canvas.width = video.videoWidth;
+        canvas.height = video.videoHeight;
+
+        const ctx = canvas.getContext("2d");
+        ctx.drawImage(video, 0, 0);
+
+        canvas.toBlob(function (blob) {
+          const file = new File([blob], "camera-photo.png", {
+            type: "image/png",
+          });
+          currentImageFile = file;
+
+          const dataTransfer = new DataTransfer();
+          dataTransfer.items.add(file);
+          document.getElementById("fileInput").files = dataTransfer.files;
+
+          displayImagePreview(file);
+          closeCamera();
+        });
+      }
+
+      document
+        .getElementById("uploadForm")
+        .addEventListener("submit", function (e) {
+          const fileInput = document.getElementById("fileInput");
+          if (fileInput.files.length > 0) {
+            document.getElementById("loadingDialog").classList.remove("hidden");
+          }
+        });
+
+      // Set dynamic confidence bar width from server-rendered data attribute
+      (function () {
+        const el = document.getElementById("confidenceBar");
+        if (el) {
+          const w = parseFloat(el.getAttribute("data-width"));
+          if (!isNaN(w)) {
+            el.style.width = Math.max(0, Math.min(100, w)).toFixed(1) + "%";
+          }
+        }
+      })();
+    </script>
+  </body>
 </html>
