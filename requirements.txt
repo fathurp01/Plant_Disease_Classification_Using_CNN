@@ -5,9 +5,9 @@
 # Install sekaligus dengan: pip install -r requirements.txt
 #
 
-flask==3.0.0
-tensorflow==2.15.0
-google-genai==0.2.2
-python-dotenv==1.0.0
-numpy==1.26.2
-pillow==10.1.0
+flask>=3.0.0
+tensorflow>=2.15.0
+google-genai>=0.2.0
+python-dotenv>=1.0.0
+numpy>=1.24.0
+pillow>=10.0.0
